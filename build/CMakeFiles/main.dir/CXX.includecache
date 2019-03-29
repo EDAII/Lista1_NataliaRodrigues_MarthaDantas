@@ -59,11 +59,17 @@ thread
 -
 list
 -
+iterator
+-
 algorithm
 -
 fstream
 -
 string
+-
+sys/types.h
+-
+signal.h
 -
 sys/time.h
 -
