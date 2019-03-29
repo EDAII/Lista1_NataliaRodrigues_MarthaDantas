@@ -3,14 +3,22 @@
 #include <stdlib.h>
 #include <thread>
 #include <list>
-#include<string>
 #include <algorithm>
+#include <fstream>
+#include <string>
+
+#include <json.hpp>
 
 using namespace std;
+using json = nlohmann::json;
+
+vector <string> loadMunicipios();
+string getData();
+json cleanData(string text);
+string stringPattern(string s);
 
 int countTime();
 void saveGuessing(list<pair<int,string>> guessing_list);
-string stringPattern(string s);
 int sequencialSearch(vector<string> municipios, string guessing);
 void countScore(vector<string> municipios, string guessing);
 void moveToforward(vector<string> municipios, int position);
@@ -19,13 +27,58 @@ int counter = 0;
 
 int main() {
     list<pair<int, string>> guessing_list;
+    vector <string> municipios = loadMunicipios();
 /*    thread timer (countTime);
     thread guessing (saveGuessing);
 
     timer.join();
     guessing.join();
 */
-return 0;
+    return 0;
+}
+
+vector <string> loadMunicipios() {
+    json data = cleanData(getData());
+
+    vector <string> municipios;
+
+    for(int i = 0; i < data.size(); i++) {
+        municipios.push_back(stringPattern(data.at(i)["nome"]));
+    }
+
+    return municipios;
+}
+
+string getData() {
+    ifstream ifs("../src/municipios.json");
+    string content( (istreambuf_iterator<char>(ifs) ),
+                    (istreambuf_iterator<char>()    ) );
+
+    return content;
+}
+
+json cleanData(string text) {
+    
+    json::parser_callback_t cb = [](int depth, json::parse_event_t event, json & parsed) {
+        if(event == json::parse_event_t::key and parsed == json("id")) {
+            return false;
+        }
+        else if (event == json::parse_event_t::key and parsed == json("microrregiao")){
+            return false;
+        }
+        else {
+            return true;
+        }
+     };
+    
+    json j_filtered = json::parse(text, cb);
+
+    return j_filtered;
+}
+
+string stringPattern(string s) {
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
 }
 
 int countTime() {
@@ -44,12 +97,6 @@ void saveGuessing(list<pair<int,string>> guessing_list) {
     guessing = stringPattern(guessing);
 
     guessing_list.push_back(make_pair(0, guessing));
-
-}
-
-string stringPattern(string s) {
-    transform(s.begin(), s.end(), s.begin(), ::tolower);
-    return s;
 }
 
 int sequencialSearch(vector<string> municipios, string guessing) {
@@ -92,4 +139,3 @@ void moveToforward(vector<string> municipios, int position) {
 
     municipios[0] = aux;
 }
-
