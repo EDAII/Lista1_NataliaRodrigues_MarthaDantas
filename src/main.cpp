@@ -23,11 +23,22 @@ int sequencialSearch(vector<string> municipios, string guessing);
 void countScore(vector<string> municipios, string guessing);
 void moveToforward(vector<string> municipios, int position);
 
+void showReport(list<pair<int, string>> guessing_list);
+vector<pair<int, string>> getTopGuessed(list<pair<int, string>> guessing_list);
+
 int counter = 0;
 
 int main() {
     list<pair<int, string>> guessing_list;
     vector <string> municipios = loadMunicipios();
+
+    guessing_list.push_back(make_pair(1, "N"));
+    guessing_list.push_back(make_pair(2, "N"));
+    guessing_list.push_back(make_pair(3, "N"));
+    guessing_list.push_back(make_pair(4, "N"));
+    guessing_list.push_back(make_pair(5, "N"));
+
+    showReport(guessing_list);
 /*    thread timer (countTime);
     thread guessing (saveGuessing);
 
@@ -138,4 +149,31 @@ void moveToforward(vector<string> municipios, int position) {
     }
 
     municipios[0] = aux;
+}
+
+void showReport(list<pair<int, string>> guessing_list) {
+    vector<pair<int,string>> top_guessed = getTopGuessed(guessing_list);
+}
+
+vector<pair<int, string>> getTopGuessed(list<pair<int, string>> guessing_list) {
+    vector<pair<int,string>> top_guessed;
+    pair<int, string> bigger;
+
+    list<pair<int, string>>::iterator remove_element;
+
+    for(int i = 0; i < 5; i++){
+        pair<int, string> bigger = make_pair(0, "n");
+
+        for (list<pair<int, string>>::iterator it = guessing_list.begin(); it != guessing_list.end(); ++it){
+            if((*it).first > bigger.first) {
+                bigger = (*it);
+                remove_element = it;
+            }
+        }
+
+        guessing_list.erase(remove_element);
+        top_guessed.push_back(bigger);
+    }
+
+    return top_guessed;
 }
