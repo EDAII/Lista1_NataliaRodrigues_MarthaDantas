@@ -7,6 +7,17 @@
 using namespace std;
 using json = nlohmann::json;
 
+string getData();
+json cleanData();
+string stringPattern(string s);
+vector <string> loadMunicipios();
+
+int main() {
+    vector <string> municipios = loadMunicipios();
+
+    return 0;
+}
+
 string getData() {
     ifstream ifs("../src/municipios.json");
     string content( (istreambuf_iterator<char>(ifs) ),
@@ -39,21 +50,14 @@ string stringPattern(string s) {
     return s;
 }
 
-vector <string> loadCities() {
+vector <string> loadMunicipios() {
     json data = cleanData(getData());
 
-    vector <string> cities;
+    vector <string> municipios;
 
     for(int i = 0; i < data.size(); i++) {
-        cities.push_back(stringPattern(data.at(i)["nome"]));
+        municipios.push_back(stringPattern(data.at(i)["nome"]));
     }
 
-    return cities;
-}
-
-
-int main() {
-    vector <string> cities = loadCities();
-
-    return 0;
+    return municipios;
 }
