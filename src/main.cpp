@@ -7,6 +7,10 @@
 #include <fstream>
 #include <string>
 
+#include <sys/time.h>
+#include <bits/stdc++.h>
+#include <sys/resource.h>
+
 #include <json.hpp>
 
 using namespace std;
@@ -23,8 +27,9 @@ int sequencialSearch(vector<string> municipios, string guessing);
 void countScore(vector<string> municipios, string guessing);
 void moveToforward(vector<string> municipios, int position);
 
-void showReport(list<pair<int, string>> guessing_list);
+void showReport(vector<string> municipios, list<pair<int, string>> guessing_list);
 vector<pair<int, string>> getTopGuessed(list<pair<int, string>> guessing_list);
+double calcTime(const struct rusage *b, const struct rusage *a);
 
 int counter = 0;
 
@@ -38,7 +43,7 @@ int main() {
     guessing_list.push_back(make_pair(4, "N"));
     guessing_list.push_back(make_pair(5, "N"));
 
-    showReport(guessing_list);
+    showReport(municipios, guessing_list);
 /*    thread timer (countTime);
     thread guessing (saveGuessing);
 
@@ -151,8 +156,31 @@ void moveToforward(vector<string> municipios, int position) {
     municipios[0] = aux;
 }
 
-void showReport(list<pair<int, string>> guessing_list) {
+void showReport(vector <string> municipios, list<pair<int, string>> guessing_list) {
     vector<pair<int,string>> top_guessed = getTopGuessed(guessing_list);
+
+    int position = 0;
+
+    struct rusage init_time, end_time;
+    double time_search = 0;
+    
+    system("clear");
+    cout << "\n\n=================================== REPORT ====================================" << "\n\n";
+    cout << "\t\t\t   TOP GUESSED CITIES: " << "\n\n";
+    cout << "\t\tNUMBER\tNAME\t\t\tTIME\n"; 
+
+    for(int i = 0; i < 5; i++) {
+        getrusage(RUSAGE_SELF, &init_time);
+            position = sequencialSearch(municipios, top_guessed.at(i).second);
+        getrusage(RUSAGE_SELF, &end_time);
+
+        time_search = calcTime(&init_time, &end_time);
+
+        cout << "\t\t" << i + 1 << "\t" << top_guessed.at(i).second << "\t\t\t" << time_search << endl;
+
+    }
+
+    cout << "\n\n\n===============================================================================" << "\n\n\n";
 }
 
 vector<pair<int, string>> getTopGuessed(list<pair<int, string>> guessing_list) {
@@ -176,4 +204,15 @@ vector<pair<int, string>> getTopGuessed(list<pair<int, string>> guessing_list) {
     }
 
     return top_guessed;
+}
+
+double calcTime(const struct rusage *b, const struct rusage *a){
+    if(b == NULL || a == NULL)
+        return 0;
+    else
+        return ((((a->ru_utime.tv_sec * 1000000 + a->ru_utime.tv_usec) -
+                 (b->ru_utime.tv_sec * 1000000 + b->ru_utime.tv_usec)) +
+                ((a->ru_stime.tv_sec * 1000000 + a->ru_stime.tv_usec) -
+                 (b->ru_stime.tv_sec * 1000000 + b->ru_stime.tv_usec)))
+                / 1000000.0);
 }
