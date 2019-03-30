@@ -1,5 +1,5 @@
 # Quanto você conhece o Brasil ?
-#### [Wiki do Projeto](https://github.com/EDAII/Lista1_NataliaRodrigues_MarthaDantas/wiki)
+#### [Wiki do Projeto](https://github.com/EDAII/Lista1_NataliaRodrigues_MarthaDantas/wiki/Quanto-voc%C3%AA-conhece-o-Brasil%3F)
 
 ## Requisitos de Instalação
 
