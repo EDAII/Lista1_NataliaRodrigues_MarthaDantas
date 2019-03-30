@@ -18,6 +18,11 @@
 using namespace std;
 using json = nlohmann::json;
 
+void printMenu();
+void exitGame();
+void playGame(vector <string> municipios);
+void reportGame(vector<string> municipios);
+
 vector <string> loadMunicipios();
 string getData();
 json cleanData(string text);
@@ -26,30 +31,84 @@ void getEntries();
 void doWhatDadDo(pid_t child);
 void doWhatChildDo(pid_t dad);
 void putFile(string entry);
-void loadEntries();
+list<string> loadEntries();
 
-int countTime();
 void saveGuessing(list<pair<int,string>> guessing_list);
 int sequencialSearch(vector<string> municipios, string guessing);
 void countScore(vector<string> municipios, string guessing);
 void moveToforward(vector<string> municipios, int position);
 string stringPattern(string s);
 
-void showReport(vector<string> municipios, list<pair<int, string>> guessing_list);
-vector<pair<int, string>> getTopGuessed(list<pair<int, string>> guessing_list);
+void showReport(vector<string> municipios);
+vector<pair<int, string>> getTopGuessed();
 double calcTime(const struct rusage *b, const struct rusage *a);
 
 int counter = 0;
-list<string> entries;
+list<pair<int, string>> guessing;
 
 int main() {
-    list<pair<int, string>> guessing_list;
     vector <string> municipios = loadMunicipios();
 
-    getEntries();
-    loadEntries();
+    int opcao = -1;
+
+    while(1){
+        printMenu();
+        scanf("%d", &opcao);
+
+        switch(opcao) {
+            case 0:
+                exitGame();
+                break;
+            case 1:
+                playGame(municipios);
+                break;
+            case 2:
+                reportGame(municipios);
+                break;
+        }
+    }
     
     return 0;
+}
+
+void printMenu() {
+    system("clear");
+    cout << "\n\n==================================== MENU =====================================" << "\n\n";
+    cout << "\t\t\t0 - Exit\n";
+    cout << "\t\t\t1 - Play\n"; 
+    cout << "\t\t\t2 - Report\n";
+    cout << "\n\n===============================================================================" << "\n\n";
+    cout << "Opção: ";
+
+}
+
+void exitGame(){
+    system("clear");
+    exit(0);
+}
+
+void playGame(vector <string> municipios) {
+    list<string> entries;
+
+    getEntries();
+    entries = loadEntries();
+
+    for (list<string>::iterator it = entries.begin(); it != entries.end(); ++it){
+        countScore(municipios, (*it));
+    }
+
+    if(counter > 0)
+        cout << "\n\nCongratulations! You hit " << counter << " cities!\n\n";
+    else 
+        cout << "\n\nYou can do better!\n\n";
+
+    system("read -p 'Press Enter to continue...' var");
+
+}
+
+void reportGame(vector<string> municipios) {
+    showReport(municipios);
+    system("read -p 'Press Enter to continue...' var");
 }
 
 vector <string> loadMunicipios() {
@@ -104,7 +163,7 @@ void getEntries(){
 
 void doWhatDadDo(pid_t child) {
     system("clear");
-    cout << "\nVocê tem 30s para colocar o máximo de cidades que conseguir lembrar: \n\n";
+    cout << "\nYou have 30s to put as many cities as you can remember:\n\n";
 
     sleep(30);
     kill(child, SIGTERM);
@@ -129,44 +188,43 @@ void putFile(string entry) {
     fclose(fp);
 }
 
-void loadEntries() {
+list<string> loadEntries() {
     ifstream fp("../src/entries.txt");
+    list<string> entries;
 
     string entry;
     while(!fp.eof()){
         getline(fp, entry);
-        entries.push_back(entry);
+        entries.push_back(stringPattern(entry));
     }
 
     fp.close();
     remove("../src/entries.txt");
-    
+
+    return entries;    
 }
 
-int countTime() {
-    int time = 60;
-    while(time >= 0) {
-        time--;
-        sleep(1);
+void saveGuessing(string name_searched) {
+
+    if(guessing.empty() == false){
+        for (list<pair<int, string>>::iterator it = guessing.begin(); it != guessing.end(); ++it){
+            if((*it).second == name_searched) {
+                (*it).first++;
+            }
+        }
+        guessing.push_back(make_pair(1, name_searched));
     }
-    return 0;
+    else {
+        guessing.push_back(make_pair(1, name_searched));
+    }
 }
 
-void saveGuessing(list<pair<int,string>> guessing_list) {
-    string guessing;
-    
-    cin >> guessing;
-    guessing = stringPattern(guessing);
-
-    guessing_list.push_back(make_pair(0, guessing));
-}
-
-int sequencialSearch(vector<string> municipios, string guessing) {
+int sequencialSearch(vector<string> municipios, string name_searched) {
     unsigned int i = 0;
 
-    municipios.push_back(guessing);
+    municipios.push_back(name_searched);
 
-    while(guessing != municipios[i]) {
+    while(name_searched != municipios[i]) {
         i++;
     }
     if(i < (municipios.size() - 1)) {
@@ -178,11 +236,12 @@ int sequencialSearch(vector<string> municipios, string guessing) {
     
 }
 
-void countScore(vector<string> municipios, string guessing) {
-    int position = sequencialSearch(municipios, guessing);
+void countScore(vector<string> municipios, string name_searched) {
+    int position = sequencialSearch(municipios, name_searched);
 
     if(position > 0) {
         counter++;
+        // saveGuessing(name_searched);
         moveToforward(municipios, position);
     }
     else {
@@ -207,8 +266,8 @@ string stringPattern(string s) {
     return s;
 }
 
-void showReport(vector <string> municipios, list<pair<int, string>> guessing_list) {
-    vector<pair<int,string>> top_guessed = getTopGuessed(guessing_list);
+void showReport(vector <string> municipios) {
+    vector<pair<int,string>> top_guessed = getTopGuessed();
 
     int position = 0;
 
@@ -220,7 +279,7 @@ void showReport(vector <string> municipios, list<pair<int, string>> guessing_lis
     cout << "\t\t\t   TOP GUESSED CITIES: " << "\n\n";
     cout << "\t\tNUMBER\tNAME\t\t\tTIME\n"; 
 
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i < top_guessed.size(); i++) {
         getrusage(RUSAGE_SELF, &init_time);
             position = sequencialSearch(municipios, top_guessed.at(i).second);
         getrusage(RUSAGE_SELF, &end_time);
@@ -234,13 +293,18 @@ void showReport(vector <string> municipios, list<pair<int, string>> guessing_lis
     cout << "\n\n\n===============================================================================" << "\n\n\n";
 }
 
-vector<pair<int, string>> getTopGuessed(list<pair<int, string>> guessing_list) {
+vector<pair<int, string>> getTopGuessed() {
     vector<pair<int,string>> top_guessed;
+
+    if(guessing.empty())
+        return top_guessed;
+    
+    list<pair<int, string>> guessing_list = guessing;
     pair<int, string> bigger;
 
     list<pair<int, string>>::iterator remove_element;
 
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < guessing_list.size() && i < 5; i++){
         pair<int, string> bigger = make_pair(0, "n");
 
         for (list<pair<int, string>>::iterator it = guessing_list.begin(); it != guessing_list.end(); ++it){
