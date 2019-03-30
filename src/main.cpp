@@ -74,9 +74,9 @@ int main() {
 void printMenu() {
     system("clear");
     cout << "\n\n==================================== MENU =====================================" << "\n\n";
-    cout << "\t\t\t0 - Exit\n";
-    cout << "\t\t\t1 - Play\n"; 
-    cout << "\t\t\t2 - Report\n";
+    cout << "\t\t\t\t0 - Exit\n";
+    cout << "\t\t\t\t1 - Play\n"; 
+    cout << "\t\t\t\t2 - Report\n";
     cout << "\n\n===============================================================================" << "\n\n";
     cout << "Opção: ";
 
@@ -241,7 +241,7 @@ void countScore(vector<string> municipios, string name_searched) {
 
     if(position > 0) {
         counter++;
-        // saveGuessing(name_searched);
+        saveGuessing(name_searched);
         moveToforward(municipios, position);
     }
     else {
@@ -277,7 +277,7 @@ void showReport(vector <string> municipios) {
     system("clear");
     cout << "\n\n=================================== REPORT ====================================" << "\n\n";
     cout << "\t\t\t   TOP GUESSED CITIES: " << "\n\n";
-    cout << "\t\tNUMBER\tNAME\t\t\tTIME\n"; 
+    cout << "\t\tNUMBER\tNAME\t\t\tTIME\t\n"; 
 
     for(int i = 0; i < top_guessed.size(); i++) {
         getrusage(RUSAGE_SELF, &init_time);
@@ -286,7 +286,7 @@ void showReport(vector <string> municipios) {
 
         time_search = calcTime(&init_time, &end_time);
 
-        cout << "\t\t" << i + 1 << "\t" << top_guessed.at(i).second << "\t\t\t" << time_search << endl;
+        cout << "\t\t" << i + 1 << "\t" << top_guessed.at(i).second << "\t\t\t" << time_search << "\t" << endl;
 
     }
 
@@ -304,7 +304,7 @@ vector<pair<int, string>> getTopGuessed() {
 
     list<pair<int, string>>::iterator remove_element;
 
-    for(int i = 0; i < guessing_list.size() && i < 5; i++){
+    for(int i = 0; i < guessing.size() && i < 5; i++){
         pair<int, string> bigger = make_pair(0, "n");
 
         for (list<pair<int, string>>::iterator it = guessing_list.begin(); it != guessing_list.end(); ++it){
