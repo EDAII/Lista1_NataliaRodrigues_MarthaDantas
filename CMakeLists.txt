@@ -34,5 +34,4 @@ endif()
 add_subdirectory(opt)
 
 add_executable(main src/main.cpp)
-target_link_libraries(main ${CPR_LIBRARIES})
-include_directories(${CPR_INCLUDE_DIRS} ${JSON_INCLUDE_DIRS})
+include_directories(${JSON_INCLUDE_DIRS})
