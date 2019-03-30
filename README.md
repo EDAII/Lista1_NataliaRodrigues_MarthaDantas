@@ -8,7 +8,7 @@
 
 ## Como rodar o projeto 
 
-#### Execute no seu terminal:
+#### 1. Execute no seu terminal:
 
 ``$ git submodule init``
 
