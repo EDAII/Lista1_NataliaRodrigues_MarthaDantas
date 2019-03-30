@@ -8,13 +8,13 @@
 
 ## Como rodar o projeto 
 
-* Execute no seu terminal:
+#### Execute no seu terminal:
 
 ``$ git submodule init``
 
 ``$ git submodule update``
 
-* Dentro da pasta do projeto, execute:
+#### 2. Dentro da pasta do projeto, execute:
  
  `` $ mkdir build``
  
